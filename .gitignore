@@ -1,0 +1,9 @@
+**/bin/
+**/obj/
+**/.vs/
+**/.vscode/
+**/.idea/
+**/.venv/
+*.user
+*.suo
+BatchMonitorTools/config.json

@@ -1,0 +1,158 @@
+<Window x:Class="BatchMonitorTools.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BatchMonitorTools"
+        mc:Ignorable="d"
+        Title="Batch Monitor Tools" Height="600" Width="980"
+        MinHeight="480" MinWidth="720"
+        Background="#F2F4F7">
+    <Grid Background="#F2F4F7">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Background="#E8EDF2" Padding="8" Margin="10,10,10,0" CornerRadius="6">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Name" Margin="0,0,6,0" VerticalAlignment="Center" />
+                    <TextBox Width="140"
+                             Text="{Binding NewTaskName, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="0,0,12,0" />
+
+                    <TextBlock Text="Path" Margin="0,0,6,0" VerticalAlignment="Center" />
+                    <TextBox Width="360"
+                             Text="{Binding NewTaskPath, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="0,0,12,0" />
+
+                    <TextBlock Text="Args" Margin="0,0,6,0" VerticalAlignment="Center" />
+                    <TextBox Width="140"
+                             Text="{Binding NewTaskArgs, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="0,0,12,0" />
+
+                    <CheckBox Content="AutoStart"
+                              IsChecked="{Binding NewTaskAutoStart}"
+                              Margin="0,0,12,0" />
+
+                    <Button Content="Add"
+                            Width="70"
+                            Margin="0,0,8,0"
+                            Command="{Binding AddTaskCommand}" />
+                    <Button Content="Remove"
+                            Width="80"
+                            Margin="0,0,8,0"
+                            Command="{Binding RemoveTaskCommand}" />
+                    <Button Content="Save"
+                            Width="70"
+                            Command="{Binding SaveConfigCommand}" />
+                </StackPanel>
+                <Button Grid.Column="1"
+                        Content="停止所有进程并关闭"
+                        Width="160"
+                        Margin="12,0,0,0"
+                        Command="{Binding StopAllAndExitCommand}" />
+            </Grid>
+        </Border>
+
+        <TabControl Grid.Row="1" Margin="10" Background="#F2F4F7">
+            <TabItem Header="Monitor">
+                <TabControl ItemsSource="{Binding Tasks}"
+                            SelectedItem="{Binding SelectedTask}"
+                            Background="#F2F4F7">
+                    <TabControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding HeaderText}" />
+                        </DataTemplate>
+                    </TabControl.ItemTemplate>
+                    <TabControl.ContentTemplate>
+                        <DataTemplate>
+                            <Grid Margin="8">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="{Binding StatusText}" FontWeight="SemiBold" />
+                                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,8,0,8">
+                                    <Button Content="Start" Width="90" Margin="0,0,8,0" Command="{Binding StartCommand}" />
+                                    <Button Content="Stop" Width="90" Margin="0,0,8,0" Command="{Binding StopCommand}" />
+                                    <TextBlock Text="Max Lines" Margin="8,0,6,0" VerticalAlignment="Center" />
+                                    <TextBox Width="70"
+                                             Text="{Binding MaxOutputLines, UpdateSourceTrigger=PropertyChanged}"
+                                             Margin="0,0,8,0" />
+                                    <CheckBox Content="Auto Scroll"
+                                              Margin="0,0,8,0"
+                                              IsChecked="{Binding DataContext.AutoScrollOutput, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                    <Button Content="Clear" Width="90" Command="{Binding ClearOutputCommand}" />
+                                </StackPanel>
+                                <TextBox Grid.Row="2"
+                                         Text="{Binding OutputText}"
+                                         IsReadOnly="True"
+                                         AcceptsReturn="True"
+                                         TextWrapping="Wrap"
+                                         VerticalScrollBarVisibility="Auto"
+                                         HorizontalScrollBarVisibility="Auto"
+                                         FontFamily="Consolas"
+                                         FontSize="14"
+                                         TextChanged="OutputTextChanged"
+                                         Background="#EEF2F6"
+                                         Foreground="#1F2328"
+                                         BorderBrush="#D0D7DE" />
+                            </Grid>
+                        </DataTemplate>
+                    </TabControl.ContentTemplate>
+                </TabControl>
+            </TabItem>
+
+            <TabItem Header="Settings">
+                <Grid Margin="8">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <Button Content="Add" Width="90" Margin="0,0,8,0" Command="{Binding AddEmptyTaskCommand}" />
+                        <Button Content="Remove" Width="90" Margin="0,0,8,0" Command="{Binding RemoveTaskCommand}" />
+                        <Button Content="Start All" Width="90" Margin="0,0,8,0" Command="{Binding StartAllCommand}" />
+                        <Button Content="Stop All" Width="90" Margin="0,0,8,0" Command="{Binding StopAllCommand}" />
+                        <Button Content="Save" Width="90" Command="{Binding SaveConfigCommand}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
+                        <CheckBox Content="Start Minimized To Tray"
+                                  Margin="0,0,12,0"
+                                  IsChecked="{Binding StartMinimizedToTray}" />
+                        <CheckBox Content="Run At Windows Startup"
+                                  Margin="0,0,12,0"
+                                  IsChecked="{Binding RunAtWindowsStartup}" />
+                        <CheckBox Content="Auto Scroll Output"
+                                  IsChecked="{Binding AutoScrollOutput}" />
+                    </StackPanel>
+                    <DataGrid Grid.Row="2"
+                              ItemsSource="{Binding Tasks}"
+                              SelectedItem="{Binding SelectedTask}"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              Background="#F7F9FC"
+                              GridLinesVisibility="All"
+                              HeadersVisibility="Column"
+                              RowHeight="28">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name" Width="140" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+                            <DataGridTextColumn Header="Path" Width="*" Binding="{Binding Path, UpdateSourceTrigger=PropertyChanged}" />
+                            <DataGridTextColumn Header="Args" Width="120" Binding="{Binding Args, UpdateSourceTrigger=PropertyChanged}" />
+                            <DataGridCheckBoxColumn Header="AutoStart" Width="90" Binding="{Binding AutoStart, UpdateSourceTrigger=PropertyChanged}" />
+                            <DataGridTextColumn Header="MaxLines" Width="90" Binding="{Binding MaxOutputLines, UpdateSourceTrigger=PropertyChanged}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

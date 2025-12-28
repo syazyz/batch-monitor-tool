@@ -1,0 +1,21 @@
+{
+  "startMinimizedToTray": false,
+  "runAtWindowsStartup": false,
+  "autoScrollOutput": true,
+  "tasks": [
+    {
+      "name": "Sample Task A",
+      "path": "C:\\Tools\\MyBatchJobs\\task-a.bat",
+      "args": "",
+      "autoStart": false,
+      "maxOutputLines": 500
+    },
+    {
+      "name": "Sample Task B",
+      "path": "C:\\Tools\\MyBatchJobs\\task-b.bat",
+      "args": "-v",
+      "autoStart": true,
+      "maxOutputLines": 500
+    }
+  ]
+}
