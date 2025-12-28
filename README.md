@@ -14,6 +14,10 @@ A lightweight WPF utility to run and monitor multiple batch files, with live out
 - Optional run at Windows startup (HKCU Run key)
 - Settings UI for editing task configuration
 
+## Screenshots
+![Monitor](assets/monitor.png)
+![Settings](assets/settings.png)
+
 ## Getting started
 1) Copy the example config and edit it:
 ```json
