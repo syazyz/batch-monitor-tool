@@ -7,6 +7,7 @@ using BatchMonitorTools.Config;
 
 namespace BatchMonitorTools.Services;
 
+// Runs a batch file via cmd.exe and streams stdout/stderr back to the UI.
 public sealed class BatchTaskRunner : ITaskRunner
 {
     private const uint CtrlCEvent = 0;
@@ -111,6 +112,7 @@ public sealed class BatchTaskRunner : ITaskRunner
             {
                 if (!_process.HasExited)
                 {
+                    // Try Ctrl+C first to allow cleanup; fall back to kill.
                     if (TrySendCtrlC(_process))
                     {
                         var process = _process;

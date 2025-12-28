@@ -2,6 +2,7 @@ using System.Collections.Generic;
 
 namespace BatchMonitorTools.Config;
 
+// Root app settings persisted to config.json.
 public sealed class AppConfig
 {
     public List<BatchTaskConfig> Tasks { get; set; } = new();

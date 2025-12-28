@@ -5,6 +5,7 @@ using BatchMonitorTools.Config;
 
 namespace BatchMonitorTools.Services;
 
+// Loads/saves app configuration from a fixed path.
 public sealed class ConfigService
 {
     private readonly string _configPath;
@@ -43,6 +44,7 @@ public sealed class ConfigService
 
     public static string DefaultConfigPath()
     {
+        // Keep config alongside the executable for easy portability.
         var baseDir = AppDomain.CurrentDomain.BaseDirectory;
         return Path.Combine(baseDir, "config.json");
     }

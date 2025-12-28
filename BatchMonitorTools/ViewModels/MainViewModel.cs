@@ -11,6 +11,7 @@ using Microsoft.Win32;
 
 namespace BatchMonitorTools.ViewModels;
 
+// Main view model coordinating tasks, settings, and persistence.
 public sealed class MainViewModel : INotifyPropertyChanged
 {
     private readonly ConfigService _configService;
@@ -333,6 +334,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     {
         try
         {
+            // Toggle HKCU Run key for per-user startup registration.
             using var runKey = Registry.CurrentUser.OpenSubKey(
                 "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
                 writable: true);

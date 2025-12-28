@@ -1,5 +1,6 @@
 namespace BatchMonitorTools.Config;
 
+// Per-task settings persisted to config.json.
 public sealed class BatchTaskConfig
 {
     public string Name { get; set; } = string.Empty;

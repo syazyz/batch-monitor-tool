@@ -9,6 +9,7 @@ using BatchMonitorTools.Services;
 
 namespace BatchMonitorTools.ViewModels;
 
+// View model for a single batch task and its live output.
 public sealed class BatchTaskViewModel : INotifyPropertyChanged
 {
     private string _name;
@@ -235,6 +236,7 @@ public sealed class BatchTaskViewModel : INotifyPropertyChanged
             return;
         }
 
+        // Keep only the most recent MaxOutputLines entries.
         var excess = _outputLines.Count - MaxOutputLines;
         if (excess <= 0)
         {

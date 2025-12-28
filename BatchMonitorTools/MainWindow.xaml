@@ -14,6 +14,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
+        <!-- Quick add/remove bar -->
         <Border Background="#E8EDF2" Padding="8" Margin="10,10,10,0" CornerRadius="6">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -52,15 +53,39 @@
                             Width="70"
                             Command="{Binding SaveConfigCommand}" />
                 </StackPanel>
-                <Button Grid.Column="1"
-                        Content="停止所有进程并关闭"
-                        Width="160"
-                        Margin="12,0,0,0"
-                        Command="{Binding StopAllAndExitCommand}" />
             </Grid>
         </Border>
 
+        <!-- Main workspace: Monitor + Settings -->
         <TabControl Grid.Row="1" Margin="10" Background="#F2F4F7">
+            <TabControl.Template>
+                <ControlTemplate TargetType="TabControl">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TabPanel Grid.Column="0" IsItemsHost="True" />
+                            <Button Grid.Column="1"
+                                    Content="Stop All and Exit"
+                                    Width="150"
+                                    Margin="8,0,0,0"
+                                    Command="{Binding StopAllAndExitCommand}" />
+                        </Grid>
+                        <Border Grid.Row="1"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter ContentSource="SelectedContent" />
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </TabControl.Template>
             <TabItem Header="Monitor">
                 <TabControl ItemsSource="{Binding Tasks}"
                             SelectedItem="{Binding SelectedTask}"

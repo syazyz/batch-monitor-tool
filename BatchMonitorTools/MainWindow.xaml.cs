@@ -10,6 +10,7 @@ namespace BatchMonitorTools;
 
 public partial class MainWindow : Window
 {
+    // Tray icon lives for the window lifetime and manages minimize/restore behavior.
     private readonly Forms.NotifyIcon _trayIcon;
     private bool _isExitRequested;
 
@@ -26,9 +27,9 @@ public partial class MainWindow : Window
         };
 
         var menu = new Forms.ContextMenuStrip();
-        var restoreItem = new Forms.ToolStripMenuItem("恢复窗口");
+        var restoreItem = new Forms.ToolStripMenuItem("Restore Window");
         restoreItem.Click += (_, _) => RestoreFromTray();
-        var exitItem = new Forms.ToolStripMenuItem("彻底关闭程序");
+        var exitItem = new Forms.ToolStripMenuItem("Exit Application");
         exitItem.Click += (_, _) => ExitFromTray();
         menu.Items.Add(restoreItem);
         menu.Items.Add(exitItem);
@@ -82,6 +83,7 @@ public partial class MainWindow : Window
     {
         if (DataContext is MainViewModel viewModel && viewModel.StartMinimizedToTray)
         {
+            // Start hidden and show tray icon when the user opts in.
             Hide();
             _trayIcon.Visible = true;
         }
@@ -93,6 +95,7 @@ public partial class MainWindow : Window
         {
             if (sender is WpfTextBox textBox)
             {
+                // Keep the latest output visible when auto-scroll is enabled.
                 textBox.ScrollToEnd();
             }
         }

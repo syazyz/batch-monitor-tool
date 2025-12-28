@@ -2,6 +2,7 @@ using System;
 
 namespace BatchMonitorTools.Services;
 
+// Abstraction for something that can run/stop and stream output.
 public interface ITaskRunner
 {
     string Name { get; }

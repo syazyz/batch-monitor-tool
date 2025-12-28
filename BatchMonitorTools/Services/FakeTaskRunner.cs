@@ -3,6 +3,7 @@ using System.Timers;
 
 namespace BatchMonitorTools.Services;
 
+// Timer-based fake runner for UI testing without launching a process.
 public sealed class FakeTaskRunner : ITaskRunner
 {
     private readonly System.Timers.Timer _timer;

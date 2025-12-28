@@ -3,6 +3,7 @@ using System.Windows.Input;
 
 namespace BatchMonitorTools.Commands;
 
+// Simple ICommand wrapper for delegate-based actions.
 public sealed class RelayCommand : ICommand
 {
     private readonly Action _execute;
