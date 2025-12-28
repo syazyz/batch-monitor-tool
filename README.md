@@ -43,3 +43,5 @@ dotnet run
 - If you enable "Run At Windows Startup", the app registers itself under
   `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`.  
   启用开机自启后会写入 `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`。
+
+荣耀归于CODEX！
