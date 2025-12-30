@@ -44,4 +44,8 @@ dotnet run
   `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`.  
   启用开机自启后会写入 `HKCU\Software\Microsoft\Windows\CurrentVersion\Run`。
 
+## Docs / 文档
+- Architecture overview / 架构说明: docs/architecture.md
+- Session history / 会话历史: docs/history.md
+
 荣耀归于CODEX！
