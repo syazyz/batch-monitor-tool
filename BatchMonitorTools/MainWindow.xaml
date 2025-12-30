@@ -116,19 +116,34 @@
                                               IsChecked="{Binding DataContext.AutoScrollOutput, RelativeSource={RelativeSource AncestorType=Window}}" />
                                     <Button Content="Clear" Width="90" Command="{Binding ClearOutputCommand}" />
                                 </StackPanel>
-                                <TextBox Grid.Row="2"
-                                         Text="{Binding OutputText}"
-                                         IsReadOnly="True"
-                                         AcceptsReturn="True"
-                                         TextWrapping="Wrap"
-                                         VerticalScrollBarVisibility="Auto"
-                                         HorizontalScrollBarVisibility="Auto"
+                                <ListBox Grid.Row="2"
+                                         ItemsSource="{Binding OutputLines}"
+                                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                         ScrollViewer.CanContentScroll="True"
+                                         ScrollViewer.ScrollChanged="OutputScrollChanged"
+                                         Loaded="OutputListLoaded"
+                                         Unloaded="OutputListUnloaded"
                                          FontFamily="Consolas"
                                          FontSize="14"
-                                         TextChanged="OutputTextChanged"
                                          Background="#EEF2F6"
                                          Foreground="#1F2328"
-                                         BorderBrush="#D0D7DE" />
+                                         BorderBrush="#D0D7DE"
+                                         BorderThickness="1"
+                                         HorizontalContentAlignment="Stretch">
+                                    <ListBox.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <VirtualizingStackPanel IsVirtualizing="True"
+                                                                    VirtualizationMode="Recycling" />
+                                        </ItemsPanelTemplate>
+                                    </ListBox.ItemsPanel>
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}"
+                                                       TextWrapping="Wrap" />
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
                             </Grid>
                         </DataTemplate>
                     </TabControl.ContentTemplate>

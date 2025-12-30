@@ -1,9 +1,12 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using BatchMonitorTools.Commands;
 using BatchMonitorTools.Services;
 
@@ -13,10 +16,10 @@ namespace BatchMonitorTools.ViewModels;
 public sealed class BatchTaskViewModel : INotifyPropertyChanged
 {
     private string _name;
-    private string _outputText;
     private bool _isRunning;
     private int _maxOutputLines;
-    private readonly List<string> _outputLines;
+    private readonly ConcurrentQueue<string> _pendingOutput;
+    private readonly DispatcherTimer _flushTimer;
     private readonly ITaskRunner _runner;
     private readonly Config.BatchTaskConfig _config;
 
@@ -25,16 +28,24 @@ public sealed class BatchTaskViewModel : INotifyPropertyChanged
         _config = config ?? throw new ArgumentNullException(nameof(config));
         _runner = runner ?? throw new ArgumentNullException(nameof(runner));
         _name = runner.Name;
-        _outputText = string.Empty;
         _isRunning = false;
         _maxOutputLines = config.MaxOutputLines > 0 ? config.MaxOutputLines : 500;
         _config.MaxOutputLines = _maxOutputLines;
-        _outputLines = new List<string>();
+        _pendingOutput = new ConcurrentQueue<string>();
+        OutputLines = new ObservableCollection<string>();
 
         StartCommand = new RelayCommand(Start, () => !IsRunning);
         StopCommand = new RelayCommand(Stop, () => IsRunning);
         ClearOutputCommand = new RelayCommand(ClearOutput);
         UpdateDerivedProperties();
+
+        // Flush output in batches to avoid per-line UI updates.
+        _flushTimer = new DispatcherTimer(DispatcherPriority.Background)
+        {
+            Interval = TimeSpan.FromMilliseconds(150)
+        };
+        _flushTimer.Tick += (_, _) => FlushPendingOutput();
+        _flushTimer.Start();
 
         _runner.OutputReceived += OnOutputReceived;
         _runner.Exited += OnExited;
@@ -106,20 +117,7 @@ public sealed class BatchTaskViewModel : INotifyPropertyChanged
 
     public Config.BatchTaskConfig Config => _config;
 
-    public string OutputText
-    {
-        get => _outputText;
-        set
-        {
-            if (_outputText == value)
-            {
-                return;
-            }
-
-            _outputText = value;
-            OnPropertyChanged();
-        }
-    }
+    public ObservableCollection<string> OutputLines { get; }
 
     public bool IsRunning
     {
@@ -162,7 +160,6 @@ public sealed class BatchTaskViewModel : INotifyPropertyChanged
             _config.MaxOutputLines = value;
             OnPropertyChanged();
             TrimOutputLines();
-            RebuildOutputText();
         }
     }
 
@@ -174,14 +171,14 @@ public sealed class BatchTaskViewModel : INotifyPropertyChanged
     {
         _runner.Start();
         IsRunning = _runner.IsRunning;
-        AppendOutput(IsRunning ? $"{Name} started." : $"{Name} failed to start.");
+        QueueOutputLine(IsRunning ? $"{Name} started." : $"{Name} failed to start.");
     }
 
     private void Stop()
     {
         _runner.Stop();
         IsRunning = _runner.IsRunning;
-        AppendOutput($"{Name} stopped.");
+        QueueOutputLine($"{Name} stopped.");
     }
 
     private void UpdateDerivedProperties()
@@ -210,7 +207,7 @@ public sealed class BatchTaskViewModel : INotifyPropertyChanged
 
     private void OnOutputReceived(string line)
     {
-        PostToUi(() => AppendOutput(line));
+        QueueOutputLine(line);
     }
 
     private void OnExited(int? exitCode)
@@ -218,15 +215,39 @@ public sealed class BatchTaskViewModel : INotifyPropertyChanged
         PostToUi(() =>
         {
             IsRunning = _runner.IsRunning;
-            AppendOutput($"Process exited (code {(exitCode.HasValue ? exitCode.Value.ToString() : "n/a")}).");
+            QueueOutputLine($"Process exited (code {(exitCode.HasValue ? exitCode.Value.ToString() : "n/a")}).");
         });
     }
 
-    private void AppendOutput(string line)
+    private void QueueOutputLine(string line)
     {
-        _outputLines.Add(line);
+        _pendingOutput.Enqueue(line ?? string.Empty);
+    }
+
+    private void FlushPendingOutput()
+    {
+        if (_pendingOutput.IsEmpty)
+        {
+            return;
+        }
+
+        var batch = new List<string>();
+        while (_pendingOutput.TryDequeue(out var line))
+        {
+            batch.Add(line);
+        }
+
+        if (batch.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var line in batch)
+        {
+            OutputLines.Add(line);
+        }
+
         TrimOutputLines();
-        RebuildOutputText();
     }
 
     private void TrimOutputLines()
@@ -237,40 +258,41 @@ public sealed class BatchTaskViewModel : INotifyPropertyChanged
         }
 
         // Keep only the most recent MaxOutputLines entries.
-        var excess = _outputLines.Count - MaxOutputLines;
+        var excess = OutputLines.Count - MaxOutputLines;
         if (excess <= 0)
         {
             return;
         }
 
-        _outputLines.RemoveRange(0, excess);
-    }
-
-    private void RebuildOutputText()
-    {
-        if (_outputLines.Count == 0)
+        for (var i = 0; i < excess; i++)
         {
-            OutputText = string.Empty;
-            return;
+            OutputLines.RemoveAt(0);
         }
-
-        OutputText = string.Join(System.Environment.NewLine, _outputLines) + System.Environment.NewLine;
     }
 
     private void ClearOutput()
     {
-        _outputLines.Clear();
-        OutputText = string.Empty;
+        while (_pendingOutput.TryDequeue(out _))
+        {
+        }
+
+        OutputLines.Clear();
     }
 
     private static void PostToUi(Action action)
     {
-        if (System.Windows.Application.Current?.Dispatcher?.CheckAccess() == true)
+        var dispatcher = System.Windows.Application.Current?.Dispatcher;
+        if (dispatcher == null)
+        {
+            return;
+        }
+
+        if (dispatcher.CheckAccess())
         {
             action();
             return;
         }
 
-        System.Windows.Application.Current?.Dispatcher?.Invoke(action);
+        dispatcher.BeginInvoke(action);
     }
 }

@@ -1,18 +1,34 @@
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Windows;
+using WpfListBox = System.Windows.Controls.ListBox;
+using WpfScrollChangedEventArgs = System.Windows.Controls.ScrollChangedEventArgs;
+using WpfScrollViewer = System.Windows.Controls.ScrollViewer;
 using BatchMonitorTools.ViewModels;
 using DrawingIcon = System.Drawing.Icon;
 using DrawingSystemIcons = System.Drawing.SystemIcons;
 using Forms = System.Windows.Forms;
-using WpfTextBox = System.Windows.Controls.TextBox;
 
 namespace BatchMonitorTools;
 
 public partial class MainWindow : Window
 {
+    private static readonly DependencyProperty OutputAutoScrollStateProperty =
+        DependencyProperty.RegisterAttached(
+            "OutputAutoScrollState",
+            typeof(OutputAutoScrollState),
+            typeof(MainWindow),
+            new PropertyMetadata(null));
+
     // Tray icon lives for the window lifetime and manages minimize/restore behavior.
     private readonly Forms.NotifyIcon _trayIcon;
     private bool _isExitRequested;
+
+    private sealed class OutputAutoScrollState
+    {
+        public bool IsUserAtBottom { get; set; } = true;
+        public NotifyCollectionChangedEventHandler? CollectionChangedHandler { get; set; }
+    }
 
     public MainWindow()
     {
@@ -89,16 +105,83 @@ public partial class MainWindow : Window
         }
     }
 
-    private void OutputTextChanged(object sender, RoutedEventArgs e)
+    private void OutputListLoaded(object sender, RoutedEventArgs e)
     {
-        if (DataContext is MainViewModel viewModel && viewModel.AutoScrollOutput)
+        if (sender is not WpfListBox listBox)
         {
-            if (sender is WpfTextBox textBox)
-            {
-                // Keep the latest output visible when auto-scroll is enabled.
-                textBox.ScrollToEnd();
-            }
+            return;
         }
+
+        var state = new OutputAutoScrollState();
+        listBox.SetValue(OutputAutoScrollStateProperty, state);
+
+        if (listBox.ItemsSource is INotifyCollectionChanged notify)
+        {
+            NotifyCollectionChangedEventHandler handler = (_, _) => OutputItemsChanged(listBox);
+            state.CollectionChangedHandler = handler;
+            notify.CollectionChanged += handler;
+        }
+    }
+
+    private void OutputListUnloaded(object sender, RoutedEventArgs e)
+    {
+        if (sender is not WpfListBox listBox)
+        {
+            return;
+        }
+
+        if (listBox.GetValue(OutputAutoScrollStateProperty) is not OutputAutoScrollState state)
+        {
+            return;
+        }
+
+        if (listBox.ItemsSource is INotifyCollectionChanged notify && state.CollectionChangedHandler != null)
+        {
+            notify.CollectionChanged -= state.CollectionChangedHandler;
+        }
+
+        listBox.ClearValue(OutputAutoScrollStateProperty);
+    }
+
+    private void OutputScrollChanged(object sender, WpfScrollChangedEventArgs e)
+    {
+        if (sender is not WpfListBox listBox)
+        {
+            return;
+        }
+
+        if (listBox.GetValue(OutputAutoScrollStateProperty) is not OutputAutoScrollState state)
+        {
+            return;
+        }
+
+        if (e.OriginalSource is not WpfScrollViewer scrollViewer)
+        {
+            return;
+        }
+
+        // Keep auto-scroll on only when the user is already at the bottom.
+        state.IsUserAtBottom = scrollViewer.VerticalOffset >= scrollViewer.ScrollableHeight - 1.0;
+    }
+
+    private void OutputItemsChanged(WpfListBox listBox)
+    {
+        if (DataContext is not MainViewModel viewModel || !viewModel.AutoScrollOutput)
+        {
+            return;
+        }
+
+        if (listBox.GetValue(OutputAutoScrollStateProperty) is not OutputAutoScrollState state || !state.IsUserAtBottom)
+        {
+            return;
+        }
+
+        if (listBox.Items.Count == 0)
+        {
+            return;
+        }
+
+        listBox.ScrollIntoView(listBox.Items[listBox.Items.Count - 1]);
     }
 
     private static DrawingIcon GetTrayIcon()
