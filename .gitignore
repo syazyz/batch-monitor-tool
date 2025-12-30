@@ -4,6 +4,7 @@
 **/.vscode/
 **/.idea/
 **/.venv/
+publish/
 *.user
 *.suo
 BatchMonitorTools/config.json
