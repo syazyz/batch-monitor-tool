@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Windows;
 using WpfListBox = System.Windows.Controls.ListBox;
 using WpfScrollChangedEventArgs = System.Windows.Controls.ScrollChangedEventArgs;
+using WpfSelectionChangedEventArgs = System.Windows.Controls.SelectionChangedEventArgs;
 using WpfScrollViewer = System.Windows.Controls.ScrollViewer;
 using BatchMonitorTools.ViewModels;
 using DrawingIcon = System.Drawing.Icon;
@@ -162,6 +163,16 @@ public partial class MainWindow : Window
 
         // Keep auto-scroll on only when the user is already at the bottom.
         state.IsUserAtBottom = scrollViewer.VerticalOffset >= scrollViewer.ScrollableHeight - 1.0;
+    }
+
+    private void OutputSelectionChanged(object sender, WpfSelectionChangedEventArgs e)
+    {
+        if (sender is not WpfListBox listBox || listBox.SelectedItem == null)
+        {
+            return;
+        }
+
+        listBox.ScrollIntoView(listBox.SelectedItem);
     }
 
     private void OutputItemsChanged(WpfListBox listBox)

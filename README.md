@@ -11,6 +11,8 @@ A lightweight WPF utility to run and monitor multiple batch files, with live out
 - Run multiple batch tasks with live stdout/stderr output / 多任务运行与实时输出
 - Start/stop individual tasks, or start/stop all tasks / 单个或批量启动/停止
 - Max output lines and clear output per task / 输出行数限制与清空
+- Output search/filter with shared input, plus match navigation / 输出搜索与过滤（共享输入框，支持命中导航）
+- Keyword highlight for output lines / 输出关键词高亮显示
 - Minimize to tray and optional start minimized / 最小化到托盘与启动最小化
 - Optional run at Windows startup (HKCU Run key) / 可选开机自启（HKCU Run）
 - Settings UI for editing task configuration / UI化配置任务

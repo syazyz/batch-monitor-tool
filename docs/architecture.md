@@ -11,11 +11,13 @@ Build outputs (bin/obj) are intentionally omitted.
 
 ## UI (Window)
 - BatchMonitorTools/MainWindow.xaml: Main UI layout (tabs, task controls, output view, settings).
+- BatchMonitorTools/MainWindow.xaml: Adds output query controls (mode, input, navigation, highlight toggle) and renders highlighted output text.
 - BatchMonitorTools/MainWindow.xaml.cs: Window behavior (tray icon, minimize/restore, auto-scroll handling).
 
 ## ViewModels (MVVM State & Commands)
 - BatchMonitorTools/ViewModels/MainViewModel.cs: App-level state and commands; loads/saves config, manages task list, handles start/stop all, startup settings, auto-scroll.
 - BatchMonitorTools/ViewModels/BatchTaskViewModel.cs: Per-task state and commands; start/stop, output buffering/display, line limits, status text.
+- BatchMonitorTools/ViewModels/BatchTaskViewModel.cs: Adds output query state, filtering, match navigation, and highlight control for per-task output.
 
 ## Services (Runtime Logic)
 - BatchMonitorTools/Services/ITaskRunner.cs: Abstraction for running/stopping tasks with output events.
@@ -29,6 +31,9 @@ Build outputs (bin/obj) are intentionally omitted.
 
 ## Command Helper
 - BatchMonitorTools/Commands/RelayCommand.cs: ICommand implementation for binding UI actions.
+
+## Helpers
+- BatchMonitorTools/Helpers/TextHighlighting.cs: Builds inline runs to highlight keyword substrings in output lines.
 
 ## Config Files
 - BatchMonitorTools/config.json: Runtime config (user data, kept next to the executable).

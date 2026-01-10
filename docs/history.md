@@ -15,3 +15,8 @@
 - Fixed build issues and validated compilation.
 - Built and published v1.0.2 release assets, added bilingual release notes and .NET runtime link.
 - Added docs/architecture.md and ignored publish/ artifacts.
+
+## 2026-01-10 08:02:00 UTC (v1.0.3)
+- Added output search/filter UI with shared input, navigation buttons, and highlight toggle.
+- Implemented output line matching, filtering, and match navigation in the task view model.
+- Added keyword substring highlighting for output lines and updated log selection support.

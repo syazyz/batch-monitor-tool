@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BatchMonitorTools"
+        xmlns:helpers="clr-namespace:BatchMonitorTools.Helpers"
         mc:Ignorable="d"
         Title="Batch Monitor Tools" Height="600" Width="980"
         MinHeight="480" MinWidth="720"
@@ -102,6 +103,7 @@
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <TextBlock Text="{Binding StatusText}" FontWeight="SemiBold" />
                                 <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,8,0,8">
@@ -117,13 +119,15 @@
                                     <Button Content="Clear" Width="90" Command="{Binding ClearOutputCommand}" />
                                 </StackPanel>
                                 <ListBox Grid.Row="2"
-                                         ItemsSource="{Binding OutputLines}"
+                                         ItemsSource="{Binding OutputView}"
+                                         SelectedItem="{Binding SelectedOutputLine}"
                                          ScrollViewer.VerticalScrollBarVisibility="Auto"
                                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                          ScrollViewer.CanContentScroll="True"
                                          ScrollViewer.ScrollChanged="OutputScrollChanged"
                                          Loaded="OutputListLoaded"
                                          Unloaded="OutputListUnloaded"
+                                         SelectionChanged="OutputSelectionChanged"
                                          FontFamily="Consolas"
                                          FontSize="14"
                                          Background="#EEF2F6"
@@ -131,6 +135,18 @@
                                          BorderBrush="#D0D7DE"
                                          BorderThickness="1"
                                          HorizontalContentAlignment="Stretch">
+                                    <ListBox.ItemContainerStyle>
+                                        <Style TargetType="ListBoxItem">
+                                            <Setter Property="VerticalContentAlignment" Value="Top" />
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Style.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter Property="Background" Value="#CCE0FF" />
+                                                    <Setter Property="Foreground" Value="#111111" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ListBox.ItemContainerStyle>
                                     <ListBox.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <VirtualizingStackPanel IsVirtualizing="True"
@@ -139,11 +155,109 @@
                                     </ListBox.ItemsPanel>
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="{Binding}"
-                                                       TextWrapping="Wrap" />
+                                            <Grid>
+                                                <TextBlock x:Name="HighlightText"
+                                                           TextWrapping="Wrap"
+                                                           helpers:TextHighlighting.SourceText="{Binding Text}"
+                                                           helpers:TextHighlighting.HighlightText="{Binding DataContext.OutputHighlightQuery, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                           helpers:TextHighlighting.HighlightBrush="#FFF7D6" />
+                                                <TextBox Text="{Binding Text, Mode=OneWay}"
+                                                         TextWrapping="Wrap"
+                                                         IsReadOnly="True"
+                                                         IsReadOnlyCaretVisible="False"
+                                                         BorderThickness="0"
+                                                         Background="Transparent"
+                                                         Foreground="Transparent"
+                                                         CaretBrush="Transparent"
+                                                         Padding="0"
+                                                         VerticalAlignment="Top"
+                                                         HorizontalAlignment="Stretch"
+                                                         Height="{Binding ActualHeight, ElementName=HighlightText}" />
+                                            </Grid>
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
                                 </ListBox>
+                                <Grid Grid.Row="3" Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                        <ComboBox Width="100"
+                                                  ItemsSource="{Binding OutputModes}"
+                                                  SelectedItem="{Binding SelectedOutputMode}"
+                                                  DisplayMemberPath="Label" />
+                                    </StackPanel>
+                                    <TextBox Grid.Column="1"
+                                             Margin="8,0,8,0"
+                                             Text="{Binding OutputQuery, UpdateSourceTrigger=PropertyChanged}" />
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                        <Button Content="Apply"
+                                                Width="70"
+                                                Margin="0,0,6,0"
+                                                Command="{Binding ApplyFilterCommand}">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsFilterMode}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                        <Button Content="Clear"
+                                                Width="70"
+                                                Margin="0,0,6,0"
+                                                Command="{Binding ClearFilterCommand}">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsFilterMode}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                        <Button Content="Prev"
+                                                Width="70"
+                                                Margin="0,0,6,0"
+                                                Command="{Binding FindPreviousMatchCommand}">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsSearchMode}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                        <Button Content="Next"
+                                                Width="70"
+                                                Margin="0,0,6,0"
+                                                Command="{Binding FindNextMatchCommand}">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsSearchMode}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                        <CheckBox Content="Highlight"
+                                                  Margin="8,0,0,0"
+                                                  IsChecked="{Binding OutputHighlightMatches}" />
+                                    </StackPanel>
+                                </Grid>
                             </Grid>
                         </DataTemplate>
                     </TabControl.ContentTemplate>
