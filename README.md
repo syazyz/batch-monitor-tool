@@ -2,6 +2,7 @@
 
 轻量级 WPF 工具，用于运行与监控多个批处理任务，支持实时输出、托盘运行及可配置启动行为。  
 A lightweight WPF utility to run and monitor multiple batch files, with live output, tray support, and configurable startup behavior.
+Version: v1.0.4 / 版本：v1.0.4
 
 ## Requirements / 运行要求
 - Windows 10/11
@@ -13,6 +14,7 @@ A lightweight WPF utility to run and monitor multiple batch files, with live out
 - Max output lines and clear output per task / 输出行数限制与清空
 - Output search/filter with shared input, plus match navigation / 输出搜索与过滤（共享输入框，支持命中导航）
 - Keyword highlight for output lines / 输出关键词高亮显示
+- Multi-select output lines with Ctrl/Shift and copy via Ctrl+C or context menu / Ctrl/Shift 多选输出行，支持 Ctrl+C 或右键菜单复制
 - Minimize to tray and optional start minimized / 最小化到托盘与启动最小化
 - Optional run at Windows startup (HKCU Run key) / 可选开机自启（HKCU Run）
 - Settings UI for editing task configuration / UI化配置任务

@@ -20,3 +20,7 @@
 - Added output search/filter UI with shared input, navigation buttons, and highlight toggle.
 - Implemented output line matching, filtering, and match navigation in the task view model.
 - Added keyword substring highlighting for output lines and updated log selection support.
+
+## 2026-01-25 10:29:52 UTC (v1.0.4)
+- Enabled Ctrl/Shift multi-select for output lines while keeping single-line text selection.
+- Added context menu and Ctrl+C support for copying selected output lines in view order.

@@ -121,6 +121,7 @@
                                 <ListBox Grid.Row="2"
                                          ItemsSource="{Binding OutputView}"
                                          SelectedItem="{Binding SelectedOutputLine}"
+                                         SelectionMode="Extended"
                                          ScrollViewer.VerticalScrollBarVisibility="Auto"
                                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                          ScrollViewer.CanContentScroll="True"
@@ -128,6 +129,9 @@
                                          Loaded="OutputListLoaded"
                                          Unloaded="OutputListUnloaded"
                                          SelectionChanged="OutputSelectionChanged"
+                                         PreviewKeyDown="OutputListPreviewKeyDown"
+                                         PreviewMouseLeftButtonDown="OutputListPreviewMouseLeftButtonDown"
+                                         PreviewMouseRightButtonDown="OutputListPreviewMouseRightButtonDown"
                                          FontFamily="Consolas"
                                          FontSize="14"
                                          Background="#EEF2F6"
@@ -135,6 +139,12 @@
                                          BorderBrush="#D0D7DE"
                                          BorderThickness="1"
                                          HorizontalContentAlignment="Stretch">
+                                    <ListBox.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Copy Selected Lines"
+                                                      Click="CopySelectedOutputLines" />
+                                        </ContextMenu>
+                                    </ListBox.ContextMenu>
                                     <ListBox.ItemContainerStyle>
                                         <Style TargetType="ListBoxItem">
                                             <Setter Property="VerticalContentAlignment" Value="Top" />

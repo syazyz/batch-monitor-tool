@@ -1,4 +1,4 @@
-# Architecture Overview (v1.0.0 Baseline)
+# Architecture Overview (v1.0.4)
 
 This note summarizes the core source files and their responsibilities.
 Build outputs (bin/obj) are intentionally omitted.
@@ -12,7 +12,8 @@ Build outputs (bin/obj) are intentionally omitted.
 ## UI (Window)
 - BatchMonitorTools/MainWindow.xaml: Main UI layout (tabs, task controls, output view, settings).
 - BatchMonitorTools/MainWindow.xaml: Adds output query controls (mode, input, navigation, highlight toggle) and renders highlighted output text.
-- BatchMonitorTools/MainWindow.xaml.cs: Window behavior (tray icon, minimize/restore, auto-scroll handling).
+- BatchMonitorTools/MainWindow.xaml: Enables multi-select output copy with Ctrl/Shift selection and a context menu for copying lines.
+- BatchMonitorTools/MainWindow.xaml.cs: Window behavior (tray icon, minimize/restore, auto-scroll handling, multi-select output copy).
 
 ## ViewModels (MVVM State & Commands)
 - BatchMonitorTools/ViewModels/MainViewModel.cs: App-level state and commands; loads/saves config, manages task list, handles start/stop all, startup settings, auto-scroll.

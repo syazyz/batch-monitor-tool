@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Windows;
@@ -9,6 +10,8 @@ using BatchMonitorTools.ViewModels;
 using DrawingIcon = System.Drawing.Icon;
 using DrawingSystemIcons = System.Drawing.SystemIcons;
 using Forms = System.Windows.Forms;
+using Input = System.Windows.Input;
+using WpfClipboard = System.Windows.Clipboard;
 
 namespace BatchMonitorTools;
 
@@ -18,6 +21,13 @@ public partial class MainWindow : Window
         DependencyProperty.RegisterAttached(
             "OutputAutoScrollState",
             typeof(OutputAutoScrollState),
+            typeof(MainWindow),
+            new PropertyMetadata(null));
+
+    private static readonly DependencyProperty OutputSelectionAnchorIndexProperty =
+        DependencyProperty.RegisterAttached(
+            "OutputSelectionAnchorIndex",
+            typeof(int?),
             typeof(MainWindow),
             new PropertyMetadata(null));
 
@@ -173,6 +183,203 @@ public partial class MainWindow : Window
         }
 
         listBox.ScrollIntoView(listBox.SelectedItem);
+    }
+
+    private void OutputListPreviewMouseRightButtonDown(object sender, Input.MouseButtonEventArgs e)
+    {
+        if (sender is not WpfListBox listBox)
+        {
+            return;
+        }
+
+        if (e.OriginalSource is not DependencyObject origin)
+        {
+            return;
+        }
+
+        var container = System.Windows.Controls.ItemsControl.ContainerFromElement(listBox, origin)
+            as System.Windows.Controls.ListBoxItem;
+        if (container == null)
+        {
+            return;
+        }
+
+        var clickedIndex = listBox.ItemContainerGenerator.IndexFromContainer(container);
+        if (clickedIndex >= 0)
+        {
+            listBox.SetValue(OutputSelectionAnchorIndexProperty, clickedIndex);
+        }
+
+        if (!container.IsSelected)
+        {
+            listBox.SelectedItems.Clear();
+            container.IsSelected = true;
+        }
+
+        listBox.Focus();
+    }
+
+    private void OutputListPreviewMouseLeftButtonDown(object sender, Input.MouseButtonEventArgs e)
+    {
+        if (sender is not WpfListBox listBox)
+        {
+            return;
+        }
+
+        if (e.OriginalSource is not DependencyObject origin)
+        {
+            return;
+        }
+
+        var container = System.Windows.Controls.ItemsControl.ContainerFromElement(listBox, origin)
+            as System.Windows.Controls.ListBoxItem;
+        if (container == null)
+        {
+            return;
+        }
+
+        var clickedIndex = listBox.ItemContainerGenerator.IndexFromContainer(container);
+        if (clickedIndex < 0)
+        {
+            return;
+        }
+
+        var modifiers = Input.Keyboard.Modifiers;
+        var isCtrl = (modifiers & Input.ModifierKeys.Control) == Input.ModifierKeys.Control;
+        var isShift = (modifiers & Input.ModifierKeys.Shift) == Input.ModifierKeys.Shift;
+
+        if (!isCtrl && !isShift)
+        {
+            listBox.SetValue(OutputSelectionAnchorIndexProperty, clickedIndex);
+            return;
+        }
+
+        listBox.Focus();
+
+        // Handle selection when the overlay TextBox would otherwise capture the click.
+        if (isShift)
+        {
+            var anchorIndex = listBox.GetValue(OutputSelectionAnchorIndexProperty) as int?
+                ?? (listBox.SelectedIndex >= 0 ? listBox.SelectedIndex : clickedIndex);
+
+            var start = Math.Min(anchorIndex, clickedIndex);
+            var end = Math.Max(anchorIndex, clickedIndex);
+
+            if (!isCtrl)
+            {
+                listBox.SelectedItems.Clear();
+            }
+
+            for (var i = start; i <= end; i++)
+            {
+                var item = listBox.Items[i];
+                if (!listBox.SelectedItems.Contains(item))
+                {
+                    listBox.SelectedItems.Add(item);
+                }
+            }
+
+            e.Handled = true;
+            return;
+        }
+
+        container.IsSelected = !container.IsSelected;
+        listBox.SetValue(OutputSelectionAnchorIndexProperty, clickedIndex);
+        e.Handled = true;
+    }
+
+    private void OutputListPreviewKeyDown(object sender, Input.KeyEventArgs e)
+    {
+        if (sender is not WpfListBox listBox)
+        {
+            return;
+        }
+
+        if (e.Key != Input.Key.C
+            || (Input.Keyboard.Modifiers & Input.ModifierKeys.Control) != Input.ModifierKeys.Control)
+        {
+            return;
+        }
+
+        if (TryCopySelectedOutputLines(listBox, requireMultipleSelection: true))
+        {
+            e.Handled = true;
+        }
+    }
+
+    private void CopySelectedOutputLines(object sender, RoutedEventArgs e)
+    {
+        if (sender is not System.Windows.Controls.MenuItem menuItem)
+        {
+            return;
+        }
+
+        if (menuItem.Parent is not System.Windows.Controls.ContextMenu menu)
+        {
+            return;
+        }
+
+        if (menu.PlacementTarget is not WpfListBox listBox)
+        {
+            return;
+        }
+
+        TryCopySelectedOutputLines(listBox, requireMultipleSelection: false);
+    }
+
+    private static bool TryCopySelectedOutputLines(WpfListBox listBox, bool requireMultipleSelection)
+    {
+        if (listBox.SelectedItems.Count == 0)
+        {
+            return false;
+        }
+
+        if (requireMultipleSelection && listBox.SelectedItems.Count <= 1)
+        {
+            return false;
+        }
+
+        var selected = new HashSet<object>();
+        foreach (var item in listBox.SelectedItems)
+        {
+            selected.Add(item);
+        }
+
+        if (selected.Count == 0)
+        {
+            return false;
+        }
+
+        var lines = new List<string>(selected.Count);
+        foreach (var item in listBox.Items)
+        {
+            if (!selected.Contains(item))
+            {
+                continue;
+            }
+
+            if (item is OutputLineViewModel line)
+            {
+                lines.Add(line.Text);
+            }
+        }
+
+        if (lines.Count == 0)
+        {
+            return false;
+        }
+
+        try
+        {
+            // Copy selected output lines in view order to keep logs readable.
+            WpfClipboard.SetText(string.Join(Environment.NewLine, lines));
+            return true;
+        }
+        catch (System.Runtime.InteropServices.ExternalException)
+        {
+            // Clipboard can be busy; ignore and keep the UI responsive.
+            return false;
+        }
     }
 
     private void OutputItemsChanged(WpfListBox listBox)
