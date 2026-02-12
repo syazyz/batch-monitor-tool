@@ -24,3 +24,8 @@
 ## 2026-01-25 10:29:52 UTC (v1.0.4)
 - Enabled Ctrl/Shift multi-select for output lines while keeping single-line text selection.
 - Added context menu and Ctrl+C support for copying selected output lines in view order.
+
+## 2026-02-12 00:00:00 UTC (v1.0.5)
+- Improved stop behavior to gracefully terminate batch jobs by sending Ctrl+C first.
+- Added automatic confirmation for `Terminate batch job (Y/N)?` prompts during stop.
+- Increased graceful-stop timeout to 5 seconds before kill fallback.

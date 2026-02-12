@@ -11,7 +11,7 @@ namespace BatchMonitorTools.Services;
 public sealed class BatchTaskRunner : ITaskRunner
 {
     private const uint CtrlCEvent = 0;
-    private const int SoftStopTimeoutMs = 2000;
+    private const int SoftStopTimeoutMs = 5000;
 
     private readonly BatchTaskConfig _config;
     private Process? _process;
@@ -56,6 +56,7 @@ public sealed class BatchTaskRunner : ITaskRunner
                     FileName = "cmd.exe",
                     Arguments = $"/c \"{_config.Path}\"{args}",
                     WorkingDirectory = workingDir,
+                    RedirectStandardInput = true,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
@@ -118,6 +119,9 @@ public sealed class BatchTaskRunner : ITaskRunner
                         var process = _process;
                         Task.Run(() =>
                         {
+                            // Confirm cmd.exe prompt: "Terminate batch job (Y/N)?"
+                            TryConfirmBatchTermination(process);
+
                             if (!process.WaitForExit(SoftStopTimeoutMs))
                             {
                                 try
@@ -140,6 +144,19 @@ public sealed class BatchTaskRunner : ITaskRunner
             {
                 OutputReceived?.Invoke($"Stop failed: {ex.Message}");
             }
+        }
+    }
+
+    private static void TryConfirmBatchTermination(Process process)
+    {
+        try
+        {
+            process.StandardInput.WriteLine("Y");
+            process.StandardInput.Flush();
+        }
+        catch
+        {
+            // Ignore when stdin is unavailable; kill fallback still applies.
         }
     }
 
