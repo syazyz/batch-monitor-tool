@@ -109,6 +109,47 @@ gh release create vX.Y.Z `
 gh release view vX.Y.Z --repo syazyz/batch-monitor-tool --json url,tagName,name,assets
 ```
 
+### 6.1 常见问题：`gh auth` 状态与本地终端不一致
+
+现象：
+- 在自动化/受限执行环境中，`gh auth status` 报 token 无效，或 `git push` 报 `could not read Username`。
+- 但在你本地外部终端中，`gh auth status` 显示已登录且可用。
+
+原因：
+- 命令执行环境与本地交互终端不在同一凭据上下文，可能无法读取 keyring、`~/.gitconfig` 或 credential helper。
+
+处理步骤：
+
+1. 在当前发布执行环境先检查：
+
+```powershell
+gh auth status
+git remote -v
+```
+
+2. 若 `gh` 异常，先修复认证：
+
+```powershell
+gh auth login -h github.com
+gh auth setup-git
+```
+
+3. 确保远端使用 HTTPS（与 `gh` 认证协议一致）：
+
+```powershell
+git remote set-url origin https://github.com/syazyz/batch-monitor-tool.git
+```
+
+4. 重新执行：
+
+```powershell
+git push -u origin main
+gh release create vX.Y.Z ...
+```
+
+5. 若外部终端可用但自动化环境仍失败：
+- 在与外部终端相同的权限上下文执行发布命令（确保能访问同一 keyring/credential helper）。
+
 ## 7. 发布检查清单
 
 - `README.md` 版本号已更新
