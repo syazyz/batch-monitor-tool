@@ -56,7 +56,8 @@ public sealed class BatchTaskRunner : ITaskRunner
                     FileName = "cmd.exe",
                     Arguments = $"/c \"{_config.Path}\"{args}",
                     WorkingDirectory = workingDir,
-                    RedirectStandardInput = true,
+                    // Some tools exit when stdin is redirected; keep this task-configurable.
+                    RedirectStandardInput = _config.EnableInputRedirect,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
@@ -113,6 +114,13 @@ public sealed class BatchTaskRunner : ITaskRunner
             {
                 if (!_process.HasExited)
                 {
+                    // Without stdin redirection, avoid Ctrl+C console signaling to reduce side effects.
+                    if (!_config.EnableInputRedirect)
+                    {
+                        _process.Kill(entireProcessTree: true);
+                        return;
+                    }
+
                     // Try Ctrl+C first to allow cleanup; fall back to kill.
                     if (TrySendCtrlC(_process))
                     {

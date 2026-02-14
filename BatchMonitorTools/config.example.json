@@ -8,6 +8,7 @@
       "path": "C:\\Tools\\MyBatchJobs\\task-a.bat",
       "args": "",
       "autoStart": false,
+      "enableInputRedirect": true,
       "maxOutputLines": 500
     },
     {
@@ -15,6 +16,7 @@
       "path": "C:\\Tools\\MyBatchJobs\\task-b.bat",
       "args": "-v",
       "autoStart": true,
+      "enableInputRedirect": true,
       "maxOutputLines": 500
     }
   ]

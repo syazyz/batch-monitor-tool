@@ -140,6 +140,21 @@ public sealed class BatchTaskViewModel : INotifyPropertyChanged
         }
     }
 
+    public bool EnableInputRedirect
+    {
+        get => _config.EnableInputRedirect;
+        set
+        {
+            if (_config.EnableInputRedirect == value)
+            {
+                return;
+            }
+
+            _config.EnableInputRedirect = value;
+            OnPropertyChanged();
+        }
+    }
+
     public Config.BatchTaskConfig Config => _config;
 
     public ObservableCollection<OutputLineViewModel> OutputLines { get; }

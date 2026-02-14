@@ -7,5 +7,6 @@ public sealed class BatchTaskConfig
     public string Path { get; set; } = string.Empty;
     public string Args { get; set; } = string.Empty;
     public bool AutoStart { get; set; }
+    public bool EnableInputRedirect { get; set; } = true;
     public int MaxOutputLines { get; set; } = 500;
 }

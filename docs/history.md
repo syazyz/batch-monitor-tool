@@ -29,3 +29,8 @@
 - Improved stop behavior to gracefully terminate batch jobs by sending Ctrl+C first.
 - Added automatic confirmation for `Terminate batch job (Y/N)?` prompts during stop.
 - Increased graceful-stop timeout to 5 seconds before kill fallback.
+
+## 2026-02-14 18:06:12 UTC (v1.0.6)
+- Added per-task `EnableInputRedirect` setting and surfaced it in the Settings grid.
+- Updated task start flow to make stdin redirection optional for compatibility with tools that reject redirected input.
+- Updated stop behavior to skip Ctrl+C signaling when input redirection is disabled, preventing unintended app exit side effects.

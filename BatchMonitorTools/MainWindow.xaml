@@ -312,6 +312,7 @@
                             <DataGridTextColumn Header="Path" Width="*" Binding="{Binding Path, UpdateSourceTrigger=PropertyChanged}" />
                             <DataGridTextColumn Header="Args" Width="120" Binding="{Binding Args, UpdateSourceTrigger=PropertyChanged}" />
                             <DataGridCheckBoxColumn Header="AutoStart" Width="90" Binding="{Binding AutoStart, UpdateSourceTrigger=PropertyChanged}" />
+                            <DataGridCheckBoxColumn Header="InputRedirect" Width="110" Binding="{Binding EnableInputRedirect, UpdateSourceTrigger=PropertyChanged}" />
                             <DataGridTextColumn Header="MaxLines" Width="90" Binding="{Binding MaxOutputLines, UpdateSourceTrigger=PropertyChanged}" />
                         </DataGrid.Columns>
                     </DataGrid>
