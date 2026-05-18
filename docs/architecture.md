@@ -1,4 +1,4 @@
-# Architecture Overview (v1.0.4)
+# Architecture Overview (v1.0.6)
 
 This note summarizes the core source files and their responsibilities.
 Build outputs (bin/obj) are intentionally omitted.

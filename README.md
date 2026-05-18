@@ -39,6 +39,13 @@ cd src
 dotnet run
 ```
 
+## Develop on WSL / 在 WSL 中开发
+Source can be edited from WSL while building against the Windows-side .NET 8 SDK — the Windows `dotnet.exe` is callable directly from WSL bash without a `powershell.exe` wrapper:
+```bash
+/mnt/c/Program\ Files/dotnet/dotnet.exe build src/BatchMonitorTools.csproj
+```
+产物为标准 Windows `.exe`，从资源管理器双击或 PowerShell 启动均可。
+
 ## Configuration / 配置说明
 `src/config.json` controls tasks and app-level settings / 用于任务与应用设置：
 - `tasks`: list of batch jobs to run / 任务列表
