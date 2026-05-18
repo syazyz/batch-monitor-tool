@@ -85,6 +85,15 @@ git commit -m "docs: add vX.Y.Z release notes"
 
 ## 6. 推送与发布方式（GitHub + gh）
 
+> WSL 环境首次使用前，先完成一次性认证配置（之后会被 git credential helper 复用，不必每次重复）：
+>
+> ```bash
+> gh auth login -h github.com    # 选择 HTTPS 协议
+> gh auth setup-git              # 把 git 的凭据指向 gh 的 token
+> ```
+>
+> 验证：`gh auth status` 显示 `Git operations protocol: https`，且 `git push` 不再提示输入用户名/密码。
+
 1. 推送主分支：
 
 ```powershell
