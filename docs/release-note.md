@@ -16,8 +16,8 @@
 在仓库根目录执行：
 
 ```powershell
-dotnet publish BatchMonitorTools/BatchMonitorTools.csproj -c Release -r win-x64 --self-contained false -o publish/framework-dependent -v minimal
-dotnet publish BatchMonitorTools/BatchMonitorTools.csproj -c Release -r win-x64 --self-contained true -o publish/self-contained -v minimal
+dotnet publish src/BatchMonitorTools.csproj -c Release -r win-x64 --self-contained false -o publish/framework-dependent -v minimal
+dotnet publish src/BatchMonitorTools.csproj -c Release -r win-x64 --self-contained true -o publish/self-contained -v minimal
 ```
 
 说明：
@@ -76,7 +76,7 @@ dotnet publish BatchMonitorTools/BatchMonitorTools.csproj -c Release -r win-x64 
 示例：
 
 ```powershell
-git add BatchMonitorTools/Services/BatchTaskRunner.cs README.md docs/history.md
+git add src/Services/BatchTaskRunner.cs README.md docs/history.md
 git commit -m "release: vX.Y.Z <summary>"
 
 git add docs/release-notes-vX.Y.Z.md

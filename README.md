@@ -30,17 +30,17 @@ Version: v1.0.6 / 版本：v1.0.6
 1) Copy the example config and edit it / 复制示例配置并修改：
 ```json
 // from repo root
-// copy BatchMonitorTools/config.example.json to BatchMonitorTools/config.json
+// copy src/config.example.json to src/config.json
 ```
-2) Update each task path/args in `BatchMonitorTools/config.json` / 更新任务路径与参数  
+2) Update each task path/args in `src/config.json` / 更新任务路径与参数  
 3) Run / 运行：
 ```bash
-cd BatchMonitorTools
+cd src
 dotnet run
 ```
 
 ## Configuration / 配置说明
-`BatchMonitorTools/config.json` controls tasks and app-level settings / 用于任务与应用设置：
+`src/config.json` controls tasks and app-level settings / 用于任务与应用设置：
 - `tasks`: list of batch jobs to run / 任务列表
   - task fields include `enableInputRedirect` (default `true`) / 任务字段包含 `enableInputRedirect`（默认 `true`）
 - `startMinimizedToTray`: start hidden and show tray icon / 启动最小化到托盘

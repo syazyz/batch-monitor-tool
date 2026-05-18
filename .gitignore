@@ -7,5 +7,5 @@
 publish/
 *.user
 *.suo
-BatchMonitorTools/config.json
+src/config.json
 AGENTS.md
